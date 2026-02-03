@@ -42,7 +42,7 @@ export const mockUsers: User[] = [
   },
   {
     id: 'user-002',
-    email: 'manager@baybuana.com',
+    email: 'manager@bayubuana.com',
     name: 'Budi Santoso',
     role: 'travel_agent_admin',
     travelAgentId: 'ta-001',
