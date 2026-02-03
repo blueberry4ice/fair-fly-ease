@@ -196,8 +196,8 @@ export default function LoginPage() {
                 <p className="text-xs font-medium text-muted-foreground mb-2">Demo Accounts:</p>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <p><span className="font-medium">Admin:</span> admin@travelfair.com / admin123</p>
-                  <p><span className="font-medium">Agent Admin:</span> manager@bayubuana.com / manager123</p>
-                  <p><span className="font-medium">Sales:</span> sales@bayubuana.com / sales123</p>
+                  <p><span className="font-medium">Agent Admin:</span> manager@garuda.com / manager123</p>
+                  <p><span className="font-medium">Sales:</span> sales@garuda.com / sales123</p>
                 </div>
               </div>
             </CardContent>
