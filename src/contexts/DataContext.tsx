@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { TravelAgent, Event, Promo, Transaction, User } from '@/types';
+import { TravelAgent, Event, Promo, Transaction, User, GuaranteedCode } from '@/types';
 import { 
   mockTravelAgents, 
   mockEvents, 
   mockPromos, 
   mockTransactions, 
   mockUsers,
-  mockGuaranteedCodes 
+  mockGuaranteedCodesData 
 } from '@/data/mockData';
 
 interface DataContextType {
@@ -16,7 +16,7 @@ interface DataContextType {
   promos: Promo[];
   transactions: Transaction[];
   users: User[];
-  guaranteedCodes: string[];
+  guaranteedCodes: GuaranteedCode[];
   
   // Transaction actions
   addTransaction: (transaction: Omit<Transaction, 'id' | 'createdAt'>) => Transaction;
@@ -33,6 +33,19 @@ interface DataContextType {
   // Promo management
   addPromo: (promo: Omit<Promo, 'id'>) => Promo;
   updatePromo: (id: string, updates: Partial<Promo>) => void;
+  
+  // Event management
+  addEvent: (event: Omit<Event, 'id' | 'createdAt'>) => Event;
+  updateEvent: (id: string, updates: Partial<Event>) => void;
+  
+  // Travel Agent management
+  addTravelAgent: (agent: Omit<TravelAgent, 'id' | 'createdAt' | 'quotaUsed'>) => TravelAgent;
+  updateTravelAgent: (id: string, updates: Partial<TravelAgent>) => void;
+  
+  // Guaranteed Code management
+  addGuaranteedCode: (code: Omit<GuaranteedCode, 'id' | 'createdAt' | 'isUsed' | 'usedBy' | 'usedAt'>) => GuaranteedCode;
+  updateGuaranteedCode: (id: string, updates: Partial<GuaranteedCode>) => void;
+  deleteGuaranteedCode: (id: string) => void;
   
   // Utility
   calculateCashback: (amount: number, promo: Promo) => number;
@@ -54,15 +67,17 @@ interface StoredData {
   users: User[];
   promos: Promo[];
   travelAgents: TravelAgent[];
+  events: Event[];
+  guaranteedCodes: GuaranteedCode[];
 }
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [travelAgents, setTravelAgents] = useState<TravelAgent[]>(mockTravelAgents);
-  const [events] = useState<Event[]>(mockEvents);
+  const [events, setEvents] = useState<Event[]>(mockEvents);
   const [promos, setPromos] = useState<Promo[]>(mockPromos);
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [users, setUsers] = useState<User[]>(mockUsers);
-  const [guaranteedCodes] = useState<string[]>(mockGuaranteedCodes);
+  const [guaranteedCodes, setGuaranteedCodes] = useState<GuaranteedCode[]>(mockGuaranteedCodesData);
 
   // Load from localStorage
   useEffect(() => {
@@ -74,6 +89,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         if (data.users) setUsers(data.users);
         if (data.promos) setPromos(data.promos);
         if (data.travelAgents) setTravelAgents(data.travelAgents);
+        if (data.events) setEvents(data.events);
+        if (data.guaranteedCodes) setGuaranteedCodes(data.guaranteedCodes);
       } catch {
         // Use default data on error
       }
@@ -82,9 +99,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   // Save to localStorage
   useEffect(() => {
-    const data: StoredData = { transactions, users, promos, travelAgents };
+    const data: StoredData = { transactions, users, promos, travelAgents, events, guaranteedCodes };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [transactions, users, promos, travelAgents]);
+  }, [transactions, users, promos, travelAgents, events, guaranteedCodes]);
 
   const generateId = (prefix: string) => {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -101,7 +118,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const validateGuaranteedCode = useCallback((code: string): boolean => {
-    return guaranteedCodes.includes(code.toUpperCase());
+    const foundCode = guaranteedCodes.find(c => c.code.toUpperCase() === code.toUpperCase());
+    if (!foundCode) return false;
+    if (foundCode.isUsed) return false;
+    const now = new Date();
+    const validFrom = new Date(foundCode.validFrom);
+    const validTo = new Date(foundCode.validTo);
+    return now >= validFrom && now <= validTo;
   }, [guaranteedCodes]);
 
   const getRemainingQuota = useCallback((promo: Promo, travelAgentId?: string): number => {
@@ -132,6 +155,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           ? { ...p, quotaUsed: p.quotaUsed + 1 }
           : p
       ));
+      
+      // Mark guaranteed code as used
+      if (transaction.guaranteedCode) {
+        setGuaranteedCodes(prev => prev.map(c =>
+          c.code.toUpperCase() === transaction.guaranteedCode?.toUpperCase()
+            ? { ...c, isUsed: true, usedBy: transaction.customerName, usedAt: new Date().toISOString() }
+            : c
+        ));
+      }
     }
     
     return newTransaction;
@@ -195,6 +227,65 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     ));
   }, []);
 
+  // Event management
+  const addEvent = useCallback((event: Omit<Event, 'id' | 'createdAt'>): Event => {
+    const newEvent: Event = {
+      ...event,
+      id: generateId('event'),
+      createdAt: new Date().toISOString(),
+    };
+    setEvents(prev => [...prev, newEvent]);
+    return newEvent;
+  }, []);
+
+  const updateEvent = useCallback((id: string, updates: Partial<Event>) => {
+    setEvents(prev => prev.map(e => 
+      e.id === id ? { ...e, ...updates } : e
+    ));
+  }, []);
+
+  // Travel Agent management
+  const addTravelAgent = useCallback((agent: Omit<TravelAgent, 'id' | 'createdAt' | 'quotaUsed'>): TravelAgent => {
+    const newAgent: TravelAgent = {
+      ...agent,
+      id: generateId('ta'),
+      quotaUsed: 0,
+      createdAt: new Date().toISOString(),
+    };
+    setTravelAgents(prev => [...prev, newAgent]);
+    return newAgent;
+  }, []);
+
+  const updateTravelAgent = useCallback((id: string, updates: Partial<TravelAgent>) => {
+    setTravelAgents(prev => prev.map(a => 
+      a.id === id ? { ...a, ...updates } : a
+    ));
+  }, []);
+
+  // Guaranteed Code management
+  const addGuaranteedCode = useCallback((code: Omit<GuaranteedCode, 'id' | 'createdAt' | 'isUsed' | 'usedBy' | 'usedAt'>): GuaranteedCode => {
+    const newCode: GuaranteedCode = {
+      ...code,
+      id: generateId('gc'),
+      isUsed: false,
+      usedBy: null,
+      usedAt: null,
+      createdAt: new Date().toISOString(),
+    };
+    setGuaranteedCodes(prev => [...prev, newCode]);
+    return newCode;
+  }, []);
+
+  const updateGuaranteedCode = useCallback((id: string, updates: Partial<GuaranteedCode>) => {
+    setGuaranteedCodes(prev => prev.map(c => 
+      c.id === id ? { ...c, ...updates } : c
+    ));
+  }, []);
+
+  const deleteGuaranteedCode = useCallback((id: string) => {
+    setGuaranteedCodes(prev => prev.filter(c => c.id !== id));
+  }, []);
+
   const getTransactionsByAgent = useCallback((agentId: string) => {
     return transactions.filter(t => t.travelAgentId === agentId);
   }, [transactions]);
@@ -222,6 +313,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     updateUser,
     addPromo,
     updatePromo,
+    addEvent,
+    updateEvent,
+    addTravelAgent,
+    updateTravelAgent,
+    addGuaranteedCode,
+    updateGuaranteedCode,
+    deleteGuaranteedCode,
     calculateCashback,
     validateGuaranteedCode,
     getRemainingQuota,

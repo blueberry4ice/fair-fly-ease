@@ -16,6 +16,8 @@ import {
   X,
   Plane,
   ChevronRight,
+  Calendar,
+  Key,
 } from 'lucide-react';
 
 interface NavItem {
@@ -30,7 +32,10 @@ const navItems: NavItem[] = [
   { label: 'New Transaction', href: '/transaction/new', icon: Ticket },
   { label: 'Transaction History', href: '/transactions', icon: History },
   { label: 'Users', href: '/admin/users', icon: Users, roles: ['administrator', 'travel_agent_admin'] },
+  { label: 'Travel Agents', href: '/admin/travel-agents', icon: Plane, roles: ['administrator'] },
+  { label: 'Events', href: '/admin/events', icon: Calendar, roles: ['administrator'] },
   { label: 'Promos', href: '/admin/promos', icon: Gift, roles: ['administrator'] },
+  { label: 'Guaranteed Codes', href: '/admin/codes', icon: Key, roles: ['administrator'] },
   { label: 'Monitoring', href: '/admin/monitoring', icon: BarChart3, roles: ['administrator'] },
 ];
 

@@ -25,9 +25,25 @@ export interface TravelAgent {
 export interface Event {
   id: string;
   name: string;
+  description: string;
+  location: string;
   startDate: string;
   endDate: string;
   isActive: boolean;
+  createdAt: string;
+}
+
+// Guaranteed Code Types
+export interface GuaranteedCode {
+  id: string;
+  code: string;
+  promoId: string;
+  validFrom: string;
+  validTo: string;
+  isUsed: boolean;
+  usedBy: string | null;
+  usedAt: string | null;
+  createdAt: string;
 }
 
 export type PromoType = 'guaranteed_code' | 'regular';

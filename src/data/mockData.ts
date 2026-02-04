@@ -87,17 +87,49 @@ export const mockEvents: Event[] = [
   {
     id: 'event-001',
     name: 'Jakarta Travel Fair 2024',
+    description: 'The biggest travel fair in Jakarta featuring exclusive promos and cashback offers.',
+    location: 'JCC Senayan, Jakarta',
     startDate: '2024-03-01',
     endDate: '2024-03-10',
     isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
   },
   {
     id: 'event-002',
     name: 'Surabaya Holiday Expo',
+    description: 'Annual holiday expo with special deals for domestic and international destinations.',
+    location: 'Grand City Convex, Surabaya',
     startDate: '2024-04-15',
     endDate: '2024-04-20',
     isActive: false,
+    createdAt: '2024-01-15T00:00:00Z',
   },
+];
+
+// Mock Guaranteed Codes with date ranges
+export interface MockGuaranteedCode {
+  id: string;
+  code: string;
+  promoId: string;
+  validFrom: string;
+  validTo: string;
+  isUsed: boolean;
+  usedBy: string | null;
+  usedAt: string | null;
+  createdAt: string;
+}
+
+export const mockGuaranteedCodesData: MockGuaranteedCode[] = [
+  { id: 'gc-001', code: 'VIP2024-001', promoId: 'promo-001', validFrom: '2024-03-01', validTo: '2024-03-10', isUsed: true, usedBy: 'Jane Smith', usedAt: '2024-03-01T11:45:00Z', createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-002', code: 'VIP2024-002', promoId: 'promo-001', validFrom: '2024-03-01', validTo: '2024-03-10', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-003', code: 'VIP2024-003', promoId: 'promo-001', validFrom: '2024-03-01', validTo: '2024-03-10', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-004', code: 'VIP2024-004', promoId: 'promo-001', validFrom: '2024-03-01', validTo: '2024-03-10', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-005', code: 'VIP2024-005', promoId: 'promo-001', validFrom: '2024-03-01', validTo: '2024-03-10', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-006', code: 'VIP2024-006', promoId: 'promo-001', validFrom: '2024-03-05', validTo: '2024-03-08', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-007', code: 'VIP2024-007', promoId: 'promo-001', validFrom: '2024-03-05', validTo: '2024-03-08', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-008', code: 'VIP2024-008', promoId: 'promo-001', validFrom: '2024-03-01', validTo: '2024-03-03', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-009', code: 'VIP2024-009', promoId: 'promo-001', validFrom: '2024-03-01', validTo: '2024-03-03', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
+  { id: 'gc-010', code: 'VIP2024-010', promoId: 'promo-001', validFrom: '2024-03-01', validTo: '2024-03-10', isUsed: false, usedBy: null, usedAt: null, createdAt: '2024-02-01T00:00:00Z' },
 ];
 
 // Mock Promos
@@ -253,16 +285,5 @@ export const mockCredentials: Record<string, { password: string; userId: string 
   'sales@sriwijaya.com': { password: 'sales123', userId: 'user-005' },
 };
 
-// Guaranteed codes for validation
-export const mockGuaranteedCodes: string[] = [
-  'VIP2024-001',
-  'VIP2024-002',
-  'VIP2024-003',
-  'VIP2024-004',
-  'VIP2024-005',
-  'VIP2024-006',
-  'VIP2024-007',
-  'VIP2024-008',
-  'VIP2024-009',
-  'VIP2024-010',
-];
+// Guaranteed codes for simple validation (backwards compatibility)
+export const mockGuaranteedCodes: string[] = mockGuaranteedCodesData.map(c => c.code);

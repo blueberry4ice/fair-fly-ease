@@ -5,10 +5,11 @@ interface PageHeaderProps {
   title: string;
   description?: string;
   actions?: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 
-export function PageHeader({ title, description, actions, className }: PageHeaderProps) {
+export function PageHeader({ title, description, actions, children, className }: PageHeaderProps) {
   return (
     <div className={cn('flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 lg:mb-8', className)}>
       <div>
@@ -19,7 +20,7 @@ export function PageHeader({ title, description, actions, className }: PageHeade
           <p className="mt-1 text-muted-foreground">{description}</p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-3">{actions}</div>}
+      {(actions || children) && <div className="flex items-center gap-3">{actions || children}</div>}
     </div>
   );
 }
